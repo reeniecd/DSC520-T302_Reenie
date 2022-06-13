@@ -1,0 +1,12 @@
+---
+title: "CHRISTUDASS_WEEK1"
+author: "Reenie Christudass"
+date: '2022-06-13'
+output: pdf_document
+---
+
+```{r}
+get.word = 'hello world'
+print (get.word)
+get.word
+```
