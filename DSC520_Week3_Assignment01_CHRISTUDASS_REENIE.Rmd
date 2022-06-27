@@ -1,0 +1,158 @@
+---
+title: "DSC520_Week3_Assignement01_CHRISTUDASS_REENIE"
+author: "Reenie Christudass"
+date: '2022-06-24'
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r}
+survey_df <- read.csv("C:/Users/chris/dsc520/data/acs-14-1yr-s0201.csv")
+print(survey_df)
+```
+```{r}
+survey_df <- read.csv("C:/Users/chris/dsc520/data/acs-14-1yr-s0201.csv")
+##print(survey_df)
+##What are the elements in your data (including the categories and data types)?
+print(sapply(survey_df, class))
+```
+
+
+
+
+```{r}
+##print(survey_df)
+##Please provide the output from the following functions: str(); nrow(); ncol()
+print(paste("Structure of the dataset is:",str(survey_df)))
+print(paste("Number of rows is:",nrow(survey_df)))
+print(paste("Number of coloumns is:",ncol(survey_df)))
+```
+
+```{r}
+##Create a Probability Plot of the HSDegree variable.
+install.packages("ggplot2", repos="http://cran.us.r-project.org")
+library(ggplot2)
+
+```
+
+
+
+
+```{r}
+##Create a Histogram of the HSDegree variable using the ggplot2 package.
+##Set a bin size for the Histogram.
+##Include a Title and appropriate X/Y axis labels on your Histogram Plot.
+ggplot(survey_df, aes(HSDegree)) + geom_histogram(bins=15)+
+  labs(size= "Nitrogen",
+       x = "No. of Students",
+       y = "Marks Scored",
+       title = "High School Degree")
+
+```
+
+```{r}
+##Based on what you see in this histogram, is the data distribution unimodal?
+print("The distribution has only one peak, its Unimodal")
+##Is it approximately symmetrical?
+print("The peak are not symmetrical")
+##Is it approximately normal?
+print("The peak are skewed so its not normal")
+##If not normal, is the distribution skewed? If so, in which direction?
+print("The peak are left skewed")
+##Include a normal curve to the Histogram that you plotted.
+#define x and y values to use for normal curve
+
+
+
+ggplot(survey_df, aes(HSDegree)) +     
+  geom_histogram(aes(y = ..density..)) +
+    stat_function(fun = dnorm,
+                args = list(mean = mean(survey_df$HSDegree),
+                            sd = sd(survey_df$HSDegree)),
+                col = "#1b98e0",
+                size = 5)
+
+
+##Explain whether a normal distribution can accurately be used as a model for this data.
+
+
+```
+
+
+
+```{r}
+##creating random data
+
+print(head(survey_df))
+ 
+p <- ggplot(survey_df, aes(sample=HSDegree))
+##+ stat_qq_point(size = 2,color = "red")
+##+ stat_qq_line(color="green")
+##+ xlab("x-axis") + ylab("y-axis")
+p + stat_qq(color="blue") + stat_qq_line(color="green")+ xlab("x-axis") + ylab("y-axis")
+##Based on what you see in this probability plot, is the distribution approximately normal? Explain how you know.
+print("Its approximately normal - The given data resides in a shape like a straight line.")
+##If not normal, is the distribution skewed? If so, in which direction? Explain how you know.
+print("It is normal and not skewed")
+```
+```{r}
+install.packages("pastecs", repos="http://cran.us.r-project.org")
+library(pastecs)
+```
+
+```{r}
+##Now that you have looked at this data visually for normality, you will now quantify normality with numbers using the stat.desc() function. Include a screen capture of the results produced.
+data <- data.frame(survey_df)
+stat.desc(data)
+```
+```{r}
+install.packages("psych", repos="http://cran.us.r-project.org")
+library(psych)
+```
+
+
+```{r}
+##Now that you have looked at this data visually for normality, you will now quantify normality with numbers using the stat.desc() function. Include a screen capture of the results produced.
+##In several sentences provide an explanation of the result produced for skew, kurtosis, and z-scores. In addition, explain how a change in the sample size may change your explanation?
+
+
+#take the whole population of the dataframe
+data <- data.frame(survey_df)
+print(stat.desc(data$HSDegree))
+psych::describe(data$HSDegree)
+
+
+# take a small population from the dataframe
+survey_df1 <- read.csv("C:/Users/chris/dsc520/data/acs-14-1yr-s0201.csv", nrow=50)
+data1 <- data.frame(survey_df1)
+print(stat.desc(data1$HSDegree))
+psych::describe(data1$HSDegree)
+```
+
+
+
+```{r}
+print("Skew and Kurtosis is dependent on the size of the data when compared to population vs sample. Smaller size can mislead the values. ")
+```
+
+
+```{r}
+##Z-score comparison
+## population
+data <- data.frame(survey_df)
+## sample
+data1 <- data.frame(survey_df1)
+
+x <- data[['HSDegree']]
+x1 <- data1[['HSDegree']]
+zscore <- (x - mean(x, na.rm = TRUE)) / sd(x, na.rm = TRUE)
+zscore1 <- (x1 - mean(x1, na.rm = TRUE)) / sd(x1, na.rm = TRUE)
+plot(zscore, type="o", col="green")
+plot(zscore1, type="o", col="blue")
+##print(zscore)
+```
+
+
+```{r}
+print("Z-Score represent how many SD you are away from mean. This has got nothing to do with population vs sample ")
