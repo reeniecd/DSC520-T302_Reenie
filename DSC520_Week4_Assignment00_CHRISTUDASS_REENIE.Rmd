@@ -1,0 +1,92 @@
+---
+title: "DSC520_Week1_Assignment00"
+author: "Reenie Christudass"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r}
+df <- read.csv("C:/Users/chris/dsc520/data/scores.csv")
+df
+print(df)
+
+```
+```{r}
+install.packages("dplyr", repos="http://cran.us.r-project.org")
+library(dplyr)
+```
+
+```{r}
+
+sport_df <- df %>% filter(Section =='Sports')
+sport_df <- sport_df[1:2]
+sport_df
+regular_df <- df %>% filter(Section =='Regular')
+regular_df <- regular_df[1:2]
+regular_df
+```
+
+
+```{r}
+print("Observational unit is - Professor teaching the student")
+print("Categorical variables is Section ie Regular and Sport")
+print("Quantitative are Count and Score")
+```
+
+```{r}
+library(ggplot2)
+ggplot(regular_df, aes(x = Score , y = Count)) +
+    geom_point()
+```
+
+
+```{r}
+
+library(ggplot2)
+ggplot(sport_df, aes(x = Score , y = Count)) +
+    geom_point()
+```
+
+
+
+
+
+```{r}
+ggplot() +
+  geom_point(data=sport_df, aes(Score, Count, color='red')) +
+  geom_point(data=regular_df, aes(Score, Count, color='blue'))+
+     labs(
+       x = "Score received by student",
+       y = "Count",
+       title = "Sports Themed section vs Regular section")
+```
+
+
+```{r}
+cat("Total Score in Sport Section =",sum(sport_df$Score),"\n")
+
+cat("Total Count in Sport Section =",sum(sport_df$Count),"\n")
+
+cat(sum(sport_df$Score)/sum(sport_df$Count),"\n")
+mean(sport_df$Score)
+
+cat("Total Score in Regular Section =",sum(regular_df$Score),"\n")
+
+cat("Total Count in Regular Section =",sum(regular_df$Count),"\n")
+
+cat(sum(regular_df$Score)/sum(regular_df$Count),"\n")
+mean(regular_df$Score)
+```
+
+```{r}
+##Did every student in one section score more points than every student in the other section? If not, explain what a ##statistical tendency means in this context.
+"The Regular section had 30 more student enrolled in the program compared to Sport section. 307.368 is mean for Sport section vs 327.632 is the mean for Regular Section "
+```
+
+```{r}
+##What could be one additional variable that was not mentioned in the narrative that could be influencing the point ##distributions between the two sections?
+"The professor who taught these two sections can greatly influenced the distribution."
+```
+

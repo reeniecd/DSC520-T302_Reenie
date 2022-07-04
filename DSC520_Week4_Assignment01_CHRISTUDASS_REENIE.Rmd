@@ -1,0 +1,98 @@
+---
+title: "DSC520_Week4_Assignment01"
+author: "Reenie Christudass"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r}
+library(readxl)
+df <- read_excel("C:/Users/chris/dsc520/data/week-7-housing.xlsx")
+print(df)
+```
+
+```{r}
+## Summary of each column
+head(apply(df, 2, summary))
+```
+
+```{r}
+library(dplyr)
+```
+
+```{r}
+##Use the apply function on a variable in your dataset
+sapply(df, class)
+names(df) <- sub(" ", "_", names(df))
+print(df)
+```
+
+```{r}
+##Use the aggregate function on a variable in your dataset
+mean_val <- aggregate(year_built ~ square_feet_total_living, data = df, mean)
+mean_val
+```
+
+
+```{r}
+##Use the aggregate function on a variable in your dataset
+sum_val <- aggregate(year_built ~ Sale_Price, data = df, sum)
+sum_val
+```
+
+```{r}
+install.packages("tidyr", repos="http://cran.us.r-project.org")
+library(tidyr)
+```
+
+```{r}
+library(dplyr)
+library(stringr)
+##Use the plyr function on a variable in your dataset – more specifically, I want to see you 
+
+## split some data
+
+## Create at least 2 new variables
+
+##data.frame(do.call("rbind", strsplit(as.character(df$Sale_Date), "-", fixed = TRUE)))
+df <- df %>% separate(Sale_Date, c('Year', 'Month','Date'))
+df
+```
+
+```{r}
+## Re-Create new Column Sale_price
+df$Sale_Date <- paste(df$Year, "-", df$Month,"-", df$Date)
+```
+
+```{r}
+## Relocate Sale_price to the front
+df %>%
+  relocate(Sale_Date, .before = Sale_Price) %>%
+  head()
+df
+```
+
+
+```{r}
+##perform a modification to the data, and then bring it back together
+df <-dplyr::select(df, -c('Year', 'Month','Date'))
+df
+```
+```{r}
+mean(df$bedrooms)
+median(df$bedrooms)
+quantile(df$bedrooms)
+boxplot(df$bedrooms)
+boxplot.stats(df$bedrooms)
+```
+
+```{r}
+hist(df$bedrooms)
+summary(df$bedrooms)
+out <- boxplot.stats(df$bedrooms)$out
+out
+```
+
+
