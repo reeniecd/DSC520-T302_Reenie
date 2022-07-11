@@ -1,0 +1,134 @@
+---
+title: "DSC520-Week5_Assignment00"
+author: "Reenie Christudass"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+
+```{r}
+library(readxl)
+df <- read_excel("C:/Users/chris/dsc520/data/week-7-housing.xlsx")
+print(df)
+```
+
+```{r}
+## Summary of each column
+head(apply(df, 2, summary))
+```
+
+
+
+```{r}
+install.packages("dplyr", repos="http://cran.us.r-project.org")
+library(dplyr)
+```
+
+```{r}
+install.packages("magrittr", repos="http://cran.us.r-project.org")
+library(magrittr)
+```
+
+```{r}
+install.packages("tidyverse", repos="http://cran.us.r-project.org")
+library(tidyverse)
+```
+
+
+```{r}
+##Use the apply function on a variable in your dataset
+sapply(df, class)
+names(df) <- sub(" ", "_", names(df))
+print(df)
+```
+
+```{r}
+## Group by Property type and Year built
+df_grp_Type_year = df %>% group_by(prop_type,year_built)  %>%
+                    summarise(Sale_Price = sum(Sale_Price),
+                              .groups = 'drop')
+ 
+df_grp_Type_year
+```
+```{r}
+## Mutate (Newly created variables)
+## Select statemenet
+df %>%
+ select(year_built, Sale_Price,square_feet_total_living) %>%  mutate(Sale_Price_by_sq_feet = Sale_Price / square_feet_total_living )
+```
+
+```{r}
+## Filter Statement - Filter the dataset only for year 2003
+df %>% filter(year_built == "2003")
+```
+
+```{r}
+## Arrange by Year_bult
+arrange(df, year_built) 
+```
+
+```{r}
+##Using the purrr package – perform 2 functions on your dataset.  
+##You could use zip_n, keep, discard, compact, etc.
+df %>% map(is.numeric)
+
+```
+
+
+
+
+
+```{r}
+## split some data
+## Create new variables
+df <- df %>% separate(Sale_Date, c('Year', 'Month','Date'))
+df
+```
+
+
+```{r}
+## then concatenate the results back together
+df
+df$Sale_Date = paste(df$Year,"+",df$Month ,"+",df$Date)
+df
+```
+
+
+```{r}
+df <- read.csv("C:/Users/chris/dsc520/data/scores.csv")
+df
+print(df)
+
+```
+
+
+```{r}
+## Use the cbind and rbind function on your dataset
+df = rbind(df, data.frame("Count"="999", "Score"="5555", Section="Regular"))
+df
+```
+```{r}
+##Column bind
+df <- data.frame(c1 = c(200, 205, 295, 300))
+df
+df2 <- data.frame(c4 = c(200, 205, 295, 300),
+ c5 = c("Football", "Softball", "Cricket", "Tennis"))
+newDf <- cbind(df, df2)
+newDf
+
+```
+```{r}
+## KEEP, DISCORD, COMPACT
+##df
+##ls1 <- (list(df$zip5))
+##ls1 %>% keep(names(.) == "9")
+newDf
+l <- list(
+    list(col1 = 'to keep', col2 = 1),
+    list(col1 = 'to discard', col2 = 2)
+)
+purrr::keep(l, ~ .x[['col1']] == 'to keep')
+purrr::discard(l, ~ .x[['col1']] == 'to discard')
+```
