@@ -8,70 +8,53 @@ output:
 ---
 
 ```{r}
+library(crayon)
+library(dplyr)
+library(tidyr)
+```
+
+
+```{r}
 library(readxl)
 df <- read_excel("C:/Users/chris/dsc520/data/week-7-housing.xlsx")
-print(df)
+cat(blue("Read the Week 7 Housing excel document\n"))
 ```
 
 ```{r}
 ## Summary of each column
-head(apply(df, 2, summary))
+cat(blue("Summary of variables in the dataset\n"))
+summary(df)
 ```
-
 ```{r}
-library(dplyr)
-```
-
-```{r}
-##Use the apply function on a variable in your dataset
-sapply(df, class)
+##Remove space in the column name
+cat(blue("Remove space in the column name"  ))
 names(df) <- sub(" ", "_", names(df))
-print(df)
+head(df)
 ```
-
 ```{r}
 ##Use the aggregate function on a variable in your dataset
-mean_val <- aggregate(year_built ~ square_feet_total_living, data = df, mean)
-mean_val
-```
-
-
-```{r}
-##Use the aggregate function on a variable in your dataset
-sum_val <- aggregate(year_built ~ Sale_Price, data = df, sum)
-sum_val
+group_mean <- aggregate(Sale_Price ~ year_built   , data = df, FUN = sum) 
+head(group_mean)
 ```
 
 ```{r}
-install.packages("tidyr", repos="http://cran.us.r-project.org")
-library(tidyr)
-```
-
-```{r}
-library(dplyr)
-library(stringr)
-##Use the plyr function on a variable in your dataset – more specifically, I want to see you 
-
-## split some data
-
-## Create at least 2 new variables
-
-##data.frame(do.call("rbind", strsplit(as.character(df$Sale_Date), "-", fixed = TRUE)))
+cat(blue("Seperate the Sale_Date into three variables Year, Month, Date\n"))
 df <- df %>% separate(Sale_Date, c('Year', 'Month','Date'))
-df
+head(df)
 ```
 
 ```{r}
-## Re-Create new Column Sale_price
-df$Sale_Date <- paste(df$Year, "-", df$Month,"-", df$Date)
+## Re-Create the Column Sale_price
+cat(blue("Re-Create the Column Sale_price\n"))
+df$Sale_Date <- paste(df$Year,"-",df$Month,"-",df$Date)
+head(df)
 ```
 
 ```{r}
-## Relocate Sale_price to the front
-df %>%
-  relocate(Sale_Date, .before = Sale_Price) %>%
-  head()
-df
+##Re-locate the Column Sale_Date in front of Sale_Price
+cat(blue("Re-locate the Column Sale_Date in front of Sale_Price\n"))
+df %>% relocate(Sale_Date, .before = Sale_Price)
+
 ```
 
 
@@ -80,19 +63,42 @@ df
 df <-dplyr::select(df, -c('Year', 'Month','Date'))
 df
 ```
+
 ```{r}
+## Identify if there are any outliers
+cat(blue("Mean of the variable bedrooms\n"))
 mean(df$bedrooms)
+cat(blue("Median of the variable bedrooms\n"))
 median(df$bedrooms)
+cat(blue("Quantile of the variable bedrooms\n"))
 quantile(df$bedrooms)
-boxplot(df$bedrooms)
-boxplot.stats(df$bedrooms)
+
 ```
 
 ```{r}
-hist(df$bedrooms)
-summary(df$bedrooms)
+cat(blue("Outliers of the variable bedrooms\n"))
+boxplot(df$bedrooms,
+  ylab = "bedrooms",
+  main = "Boxplot of bedrooms \n"
+)
+
+```
+```{r}
+cat(blue("Outliers of the variable bedrooms\n"))
 out <- boxplot.stats(df$bedrooms)$out
 out
 ```
+
+```{r}
+
+hist(df$bedrooms)
+cat(blue("Summary of the variable bedrooms\n"))
+summary(df$bedrooms)
+
+```
+
+
+
+
 
 

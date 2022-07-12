@@ -8,24 +8,27 @@ output:
 ---
 
 ```{r}
-df <- read.csv("C:/Users/chris/dsc520/data/scores.csv")
-df
-print(df)
-
-```
-```{r}
-install.packages("dplyr", repos="http://cran.us.r-project.org")
 library(dplyr)
+library(tidyr)
+library(ggplot2)
 ```
 
-```{r}
 
+```{r}
+## Read the file scores
+df <- read.csv("C:/Users/chris/dsc520/data/scores.csv")
+head(df)
+```
+
+
+```{r}
+## Split the dataframe by section
 sport_df <- df %>% filter(Section =='Sports')
 sport_df <- sport_df[1:2]
-sport_df
+head(sport_df)
 regular_df <- df %>% filter(Section =='Regular')
 regular_df <- regular_df[1:2]
-regular_df
+head(regular_df)
 ```
 
 
@@ -36,15 +39,14 @@ print("Quantitative are Count and Score")
 ```
 
 ```{r}
-library(ggplot2)
+## Create Scatter lot of students attending Regular session
 ggplot(regular_df, aes(x = Score , y = Count)) +
     geom_point()
 ```
 
 
 ```{r}
-
-library(ggplot2)
+## Create Scatter lot of students attending Sport session
 ggplot(sport_df, aes(x = Score , y = Count)) +
     geom_point()
 ```
@@ -54,6 +56,7 @@ ggplot(sport_df, aes(x = Score , y = Count)) +
 
 
 ```{r}
+## Compare Sports vs Regular session students performance
 ggplot() +
   geom_point(data=sport_df, aes(Score, Count, color='red')) +
   geom_point(data=regular_df, aes(Score, Count, color='blue'))+
@@ -81,12 +84,19 @@ mean(regular_df$Score)
 ```
 
 ```{r}
-##Did every student in one section score more points than every student in the other section? If not, explain what a ##statistical tendency means in this context.
-"The Regular section had 30 more student enrolled in the program compared to Sport section. 307.368 is mean for Sport section vs 327.632 is the mean for Regular Section "
+##Did every student in one section score more points than every student in the other section? 
+##If not, explain what a ##statistical tendency means in this context.
+
+
+##"The Regular section had 30 more student enrolled in the program compared to Sport section. 
+##307.368 is mean for Sport section vs 327.632 is the mean for Regular Section "
 ```
 
 ```{r}
-##What could be one additional variable that was not mentioned in the narrative that could be influencing the point ##distributions between the two sections?
-"The professor who taught these two sections can greatly influenced the distribution."
+##What could be one additional variable that was not mentioned in the narrative that could 
+##be influencing the point ##distributions between the two sections?
+
+
+##"The professor who taught these two sections can greatly influence the distribution."
 ```
 
