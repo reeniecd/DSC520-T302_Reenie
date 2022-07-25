@@ -1,0 +1,234 @@
+---
+title: "DSC_520_week7_Assignment01"
+author: "Reenie Christudass"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+
+\tableofcontents
+\pagebreak
+
+## Load Libraries
+```{r}
+if(!require('pander')) {
+  install.packages('pander')
+  library('pander')
+}
+if(!require('ggplot2')) {
+  install.packages('ggplot2')
+  library('ggplot2')
+}
+if(!require('knitr')) {
+  install.packages('knitr')
+  library('knitr')
+}
+if(!require('tinytex')) {
+  install.packages('tinytex')
+  library('tinytex')
+}
+if(!require('ppcor')) {
+  install.packages('ppcor')
+  library('ppcor')
+}
+if(!require('formatR')) {
+  install.packages('formatR')
+  library('formatR')
+}
+
+knitr::opts_chunk$set(tidy.opts = list(width.cutoff = 60), tidy = TRUE)
+```
+```{r, echo = F}
+library(knitr)
+opts_chunk$set(tidy.opts=list(width.cutoff=80),tidy=TRUE)
+```
+
+## Read the Student Survey
+
+```{r}
+## Set the working directory to the root of your DSC 520 directory
+setwd("C:/Users/chris/dsc520/data")
+```
+
+```{r}
+## Load the `data/student-survey` to
+survey_df <- read.csv("C:/Users/chris/dsc520/data/student-survey.csv")
+head(survey_df)
+```
+
+
+## Question 1
+```{r}
+## Use R to calculate the covariance of the Survey variables and provide an explanation 
+## of why you would use this calculation and what the results indicate.
+
+## Covariance between two variable (Happiness and TimeTV)
+Mood = survey_df$Happiness   
+TVTime = survey_df$TimeTV
+cov(Mood, TVTime)
+
+
+## Covariance between two variable (TimeReading and TimeTV)
+Mood = survey_df$TimeReading   
+TVTime = survey_df$TimeTV
+cov(Mood, TVTime)
+
+print(paste(" Happiness vs TVTime - As one variable changes, the other variable 
+will change in the same direction with a magnitude of 114.3773. Humans are happy 
+when they watch TV."))
+
+print(paste(" TimeReading vs TVTime - The calculated covariance of TimeReading 
+and TVTime is negative -20.3636, indicating the two variables are negatively 
+related. As one variable changes, the other variable will change in the opposite 
+direction with a magnitude of -20.3636. "))
+
+print(paste("Covariance is used to measure variables that have different units of
+measurement. The unit of measurement is not standarized "))
+```
+
+
+## Question 2
+```{r}
+##Examine the Survey data variables. What measurement is being used for the variables? Explain what effect changing the ##measurement being used for the variables would have on the covariance calculation. Would this be a problem? Explain and ##provide a better alternative if needed.
+
+#Changing the scale for column Happiness and TimeTV. Multiple it by constant value 20
+
+survey_df_change_measure <- survey_df
+survey_df_change_measure$Happiness <- survey_df$Happiness * 20
+survey_df_change_measure$TimeTV <-survey_df$TimeTV * 20
+head(survey_df_change_measure)
+
+## Covariance between two variable 
+Mood = survey_df_change_measure$Happiness   
+TVTime = survey_df_change_measure$TimeTV
+cov(Mood, TVTime)
+
+print(paste("Change of scale affects covariance. For example, if the value of two variables is multiplied by similar or different constants, this affects the calculated covariance."))
+```
+## Question 3
+
+
+```{r}
+## Choose the type of correlation test to perform, explain why you chose this test, 
+## and make a prediction if the test ##yields a positive or negative correlation?
+
+
+## Covariance between two variable
+Mood = survey_df$TimeReading   
+TVTime = survey_df$TimeTV
+cov(Mood, TVTime)
+
+Mood = survey_df$Happiness   
+TVTime = survey_df$TimeTV
+cov(Mood, TVTime)
+
+
+
+print(paste("CONCLUSION:Pearson Correlation between TimeReading and TimeTV found above 
+is -0.88( Negative correlation), meaning that the 2 variables vary in opposite 
+direction. More the amount of time you spend in reading book and less time is 
+spend in watching TV.The correlation coefficient (the closer to -1 or 1) shows 
+the stronger the relationship"))
+
+print(paste("CONCLUSION:Pearson Correlation between Happiness and TimeTV found above 
+is 0.64( Positive correlation), meaning that the 2 variables vary in same direction."))
+
+print(paste("CONCLUSION:A correlation close to 0 indicates that the two variables 
+ are independent - TimeTV and Gender"))
+```
+## Question 4
+
+```{r}
+##Perform a correlation analysis of:
+##All variables
+##A single correlation between two a pair of the variables
+##Repeat your correlation test in step 2 but set the confidence interval at 99%
+##Describe what the calculations in the correlation matrix suggest about the relationship 
+##between the variables. Be ##specific with your explanation.
+
+round(cor(survey_df), 
+  digits = 2 # rounded to 2 decimals
+)
+ 
+
+## correlation between two variable
+Mood = survey_df$TimeReading   
+TVTime = survey_df$TimeTV
+cor(Mood, TVTime)
+
+##Pearson correlation test
+res <- cor.test(survey_df$TimeReading, survey_df$TimeTV, method = "pearson", conf.level =.99 )
+res
+
+#Extract 99 percent confidence interval
+res$conf.int
+
+# Extract the p.value
+res$p.value
+
+# Extract the correlation coefficient
+res$estimate
+
+
+```
+## Question 5
+```{r}
+##Calculate the correlation coefficient and the coefficient of determination, 
+##describe what you conclude about the results.
+
+## correlation between two variable
+Mood = survey_df$TimeReading   
+TVTime = survey_df$TimeTV
+cor(Mood, TVTime)
+
+## coefficient of determination between two variable
+eruption.lm = lm(TimeReading ~ TimeTV, data=survey_df)
+summary(eruption.lm)$r.squared 
+
+
+mod1 <- lm(TimeReading ~ TimeTV, data = survey_df)
+mod1_summ <- summary(mod1)
+mod1_summ$coefficients
+mod1_summ$r.squared
+
+
+```
+
+## Question 6
+```{r}
+##Based on your analysis can you say that watching more TV caused students to read less? Explain.
+##A student who watches more TV has decreased the reading time.Negative Correlation
+
+x <- survey_df$TimeReading
+y <- survey_df$TimeTV
+
+plot(x, y, main = "TimeReading vs TimeTV",
+ xlab = "TimeReading", ylab = "TimeTV",
+ pch = 19)
+print(paste("A student who watches more TV has decreased the reading time.Negative Correlation"))
+
+```
+
+## Question 7
+```{r}
+## Pick three variables and perform a partial correlation, documenting which variable 
+## you are “controlling”. Explain how this changes your interpretation and explanation of the results.
+
+pcor(survey_df)
+
+print(paste("
+Suppose we use a set of data  which lists three (TimeReading, TimeTV, Happiness). Each child was 
+tested for TimeReading (Y) and TimeTV (X2), and their Happiness was also noted. A correlation 
+statistic was desired which predicts Y (TimeReading) from X1 and X2 (TimeTV and Happiness).
+
+Normally, in a situation where X1 and X2 were independent random variables, we’d find out how 
+important each variable was by computing a squared coefficient of correlation between X1 and X2 
+and the dependent variable Y. We would know that these squared coefficients of correlation were 
+equal to the square multiple coefficient of correlation. But in a case like ours, X1 and X2 are 
+anything but independent. TimeReading is highly dependent on Happiness, and so using the squared 
+coefficient will count the contributions of each variable several times over.
+"))
+
+```
