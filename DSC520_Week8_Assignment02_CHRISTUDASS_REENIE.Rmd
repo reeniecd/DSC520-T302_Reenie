@@ -1,0 +1,235 @@
+---
+title: "Untitled"
+author: "Reenie Christudass"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+## Load Libraries
+
+```{r}
+library(readxl)
+library(ggplot2)
+library(dplyr)
+library(caTools)
+library(tidyverse)
+library(car)
+
+```
+
+
+## Read the data
+```{r}
+## Set the working directory to the root of your DSC 520 directory
+setwd("C:/Users/chris/dsc520/data")
+```
+
+```{r}
+df <- read_excel("C:/Users/chris/dsc520/data/week-7-housing.xlsx")
+```
+
+
+```{r}
+## Transformations ( Filter the data for a particular year)
+names(df) <- sub(" ", "_", names(df))
+df <- subset(df, year_built == "2000")
+head(df)
+```
+
+
+
+
+
+```{r}
+# Select out data of interest
+d <- df %>% select(Sale_Price, sq_ft_lot)
+
+d <- log(d)
+
+# Fit the model
+model1 <- lm(Sale_Price ~ sq_ft_lot, data = d)
+plot(model1)
+summary(model1)
+
+# Check the assumption of independence is using the Durbin Watson test
+# The Durbin Watson (DW) statistic is used as a test for checking auto correlation in the residuals of a statistical regression analysis
+durbinWatsonTest(model1)
+
+#examine correlation between variable
+correlation <- cor(d$Sale_Price, d$sq_ft_lot)
+print(paste("correlation between variable:",correlation))
+
+# Obtain predicted and residual values
+d$predicted_LM <- predict(model1)
+d$residuals_LM <- residuals(model1)
+d
+
+ggplot(d, aes(x=sq_ft_lot, y=Sale_Price)) + geom_point() + geom_smooth(method = lm, se = FALSE)
+
+#create histogram of residuals
+ggplot(data = d, aes(x = d$residuals_LM )) +
+    geom_histogram(fill = 'steelblue', color = 'black') +
+    labs(title = 'Histogram of Residuals', x = 'Residuals', y = 'Frequency')
+
+```
+
+```{r}
+# Select out data of interest
+d1 <- df %>% select(Sale_Price, sq_ft_lot, square_feet_total_living )
+
+d1 <- log(d1)
+
+# check for multicollinearity
+cor(d1, method="pearson")
+
+
+# Fit the model
+model2 <- lm(Sale_Price ~ sq_ft_lot + square_feet_total_living, data = d1)
+plot(model2)
+summary(model2)
+
+#create vector of VIF values
+vif_values <- vif(model2)
+print(vif_values)
+
+#create horizontal bar chart to display each VIF value
+barplot(vif_values, main = "VIF Values", horiz = TRUE, col = "steelblue")
+
+#add vertical line at 5
+abline(v = 5, lwd = 3, lty = 2)
+
+# Check the assumption of independence is using the Durbin Watson test
+# The Durbin Watson (DW) statistic is used as a test for checking auto correlation in the residuals of a statistical regression analysis
+durbinWatsonTest(model2)
+
+#  ANOVA test to estimate the effect of each feature on the variances with the anova() function
+anova(model2)
+
+# Obtain predicted and residual values
+d1$predicted_MLM <- predict(model2)
+d1$residuals_MLM <- residuals(model2)
+head(d1)
+
+#create histogram of residuals
+ggplot(data = d, aes(x = d1$residuals_MLM )) +
+    geom_histogram(fill = 'steelblue', color = 'black') +
+    labs(title = 'Histogram of Residuals', x = 'Residuals', y = 'Frequency')
+
+```
+
+```{r}
+#calculate residual sum of squares for both models
+deviance(model1)
+deviance(model2)
+```
+
+```{r}
+#calculate R-squared for both models
+summary(model1)$r.squared
+summary(model2)$r.squared
+```
+
+
+```{r}
+#Influence Measures for multiple regressions
+##inf_measures <- influence.measures(model2)
+##head(inf_measures)
+```
+
+
+
+```{r}
+#Cook’s D Bar 
+install.packages("olsrr", repos="http://cran.us.r-project.org")
+library(olsrr)
+ols_plot_dfbetas(model2)
+ols_plot_cooksd_chart(model2)
+ols_plot_resid_fit_spread(model2)
+ols_plot_resid_lev(model2)
+ols_plot_resid_stud_fit(model2)
+```
+
+
+##Explain any transformations or modifications you made to the dataset
+The column name was standardized by adding "-" in between. Also i transformed the selected subset to log() function in R Language returns the natural logarithm (base-e logarithm) of the argument passed in the parameter. Also i have filtered my data for houses built in a particular year "2000". 
+
+
+##Create two variables; one that will contain the variables Sale Price and Square Foot of Lot (same variables used from previous assignment on simple regression) and one that will contain Sale Price and several additional predictors of your choice. Explain the basis for your additional predictor selections.
+I created two models. 
+
+1. Linear regression
+
+Relationship between two variable ( Sales prices and Square foot of lot). Dependent variable is Sales price and independent variable is "Square foot of lot". 
+
+2. Multiple Linear Regression( Sales prices and Square feet total living + Square foot of lot)
+
+Multiple regression is a statistical technique that can be used to analyze the relationship between a single dependent variable and several independent variables. So for independent variable or predictor i have chosen "Square feet total living" and "Square foot of lot".
+
+
+
+
+##Execute a summary() function on two variables defined in the previous step to compare the model results. What are the R2 and Adjusted R2 statistics? Explain what these results tell you about the overall model. Did the inclusion of the additional predictors help explain any large variations found in Sale Price?
+
+For multiple regression, R2 must be adjusted and the value found is 0.6046 vs for Linear regression the R2 is 0.3996. Adding one more predictor value has improved the R2 values. 
+
+
+Multiple linear regression is a more specific calculation than simple linear regression. For straight-forward relationships, simple linear regression may easily capture the relationship between the two variables. For more complex relationships requiring more consideration, multiple linear regression is often better.
+
+A multiple regression formula has multiple slopes (one for each variable) and one y-intercept. It is interpreted the same as a simple linear regression formula except there are multiple variables that all impact the slope of the relationship.
+
+The R-squared for model 2 turns out to be higher, which indicates that it’s able to explain more of the variance in the response values compared to model 1. (Model 1 =  0.3995917, Model 2 = 0.6129985)
+
+
+##Considering the parameters of the multiple regression model you have created. What are the standardized betas for each parameter and what do the values indicate?
+
+                        Estimate Std. Error t value Pr(>|t|)    
+(Intercept)               7.43406    0.60648  12.258  < 2e-16 ***
+sq_ft_lot                 0.14907    0.02480   6.012 3.65e-08 ***
+square_feet_total_living  0.58864    0.08264   7.123 2.30e-10 ***
+
+p value is 0. The null hypothesis is rejected and your test is statistically significant
+
+
+##Calculate the confidence intervals for the parameters in your model and explain what the results indicate.
+Assess the improvement of the new model compared to your original model (simple regression model) by testing whether this change is significant by performing an analysis of variance.
+Perform casewise diagnostics to identify outliers and/or influential cases, storing each function's output in a dataframe assigned to a unique variable name.
+
+
+##Calculate the standardized residuals using the appropriate command, specifying those that are +-2, storing the results of large residuals in a variable you create.
+
+
+We can see that the residual sum of squares for mode2 1 is lower, which indicates that it fits the data better than model 1.
+
+Model 1: 10.0868
+Model 2: 6.501586
+
+##Use the appropriate function to show the sum of large residuals.Which specific variables have large residuals (only cases that evaluate as TRUE)?Investigate further by calculating the leverage, cooks distance, and covariance rations. Comment on all cases that are problematics.
+
+deviance function was used to check the large residual between two models. ols_plot_resid_lev shows the leverage, outlier in the model. ols_plot_resid_stud_fit - Graph shows the detecting outliers. 
+
+
+
+##Perform the necessary calculations to assess the assumption of independence and state if the condition is met or not.
+
+Durbin watson autocorrelation test was performed to investigate where the residuals from the linear or multiple regression model are independent.
+
+The Durban Watson statistic will always assume a value between 0 and 4. A value of DW = 2 indicates that there is no autocorrelation. When the value is below 2, it indicates a positive autocorrelation, and a value higher than 2 indicates a negative serial correlation
+
+For linear regression, the D-W Statistic observed is 2.007405 and for multiple regression the D-W Statistic observed is 1.867343. The conditions are met.
+
+##Perform the necessary calculations to assess the assumption of no multicollinearity and state if the condition is met or not.
+
+Performed multicollinearity calculations only for the multiple regressions. If the independent variable is >-0.85 or >0.85, those variable should not included part of the model. R2 will be large but none of the individual beta weights are statistically significant. 
+
+To visualize the VIF values for each predictor variable, we can create a simple horizontal bar chart and add a vertical line at 5 so we can clearly see which VIF values exceed 5. In the multiple regression none of the values were above 5
+
+##Visually check the assumptions related to the residuals using the plot() and hist() functions. Summarize what each graph is informing you of and if any anomalies are present.
+
+Linear regression plot() and Hist() both show that there are couple of anomalies present in the chart. Anyhow, the charts shows they have roughly normally distributed.  
+
+
+##Overall, is this regression model unbiased? If an unbiased regression model, what does this tell us about the sample vs. the entire population model?
+
+No. The model is not unbiased. 

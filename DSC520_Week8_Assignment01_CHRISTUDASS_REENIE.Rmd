@@ -1,0 +1,168 @@
+---
+title: "DSC_520_week8_Assignment01"
+author: "Reenie Christudass"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+## Load Libraries
+```{r}
+if(!require('pander')) {
+  install.packages('pander')
+  library('pander')
+}
+if(!require('ggplot2')) {
+  install.packages('ggplot2')
+  library('ggplot2')
+}
+if(!require('knitr')) {
+  install.packages('knitr')
+  library('knitr')
+}
+if(!require('tinytex')) {
+  install.packages('tinytex')
+  library('tinytex')
+}
+if(!require('ppcor')) {
+  install.packages('ppcor')
+  library('ppcor')
+}
+if(!require('formatR')) {
+  install.packages('formatR')
+  library('formatR')
+}
+```
+
+```{r}
+## Set the working directory to the root of your DSC 520 directory
+setwd("C:/Users/chris/dsc520/data")
+```
+
+```{r}
+## Load the `data/r4ds/heights.csv` to
+heights_df <- read.csv("C:/Users/chris/dsc520/data/r4ds/heights.csv")
+head(heights_df)
+```
+
+```{r}
+## Fit a linear model using the `age` variable as the predictor and `earn` as the
+
+
+earn_lm <-  lm(age ~ ed + race + height + earn + sex, data = heights_df)
+earn_lm
+```
+```{r}
+## View the summary of your model using `summary()`
+summary(earn_lm)
+```
+
+```{r}
+## Creating predictions using `predict()`
+#age_predict_df <- data.frame(earn = predict(earn ~ ed + race + height + age + sex, data = heights_df), age=___)
+
+earn_predict_df <- data.frame(ed = heights_df$ed, race = heights_df$race, height = heights_df$height, age = heights_df$age, sex = heights_df$sex, earn = heights_df$earn, age = predict(earn_lm, data = heights_df))
+earn_predict_df
+```
+
+
+```{r}
+## Plot the predictions against the original data
+ggplot(data = heights_df, aes(y = age , x = earn)) +
+  geom_point(color='blue') +
+  geom_line(color='red',data = earn_predict_df, aes(y=age, x=earn))
+```
+
+
+```{r}
+mean_earn <- mean(heights_df$earn)
+mean_earn
+## Corrected Sum of Squares Total
+sst <- sum((mean_earn - heights_df$earn)^2)
+sst
+## Corrected Sum of Squares for Model
+ssm <- sum((mean_earn - earn_predict_df$age)^2)
+head(ssm)
+## Residuals
+residuals <- heights_df$earn - earn_predict_df$age
+head(residuals)
+## Sum of Squares for Error
+sse <- sum(residuals^2)
+sse
+## R Squared R^2 = SSM\SST
+r_squared <- ssm/sst
+r_squared
+```
+
+```{r}
+## Number of observations
+n <- NROW(earn_predict_df$age)
+n
+```
+
+```{r}
+## Number of regression parameters
+p <- 2
+```
+
+```{r}
+## Corrected Degrees of Freedom for Model (p-1)
+dfm <- p - 1
+dfm
+```
+
+```{r}
+## Degrees of Freedom for Error (n-p)
+dfe <- n - p
+dfe
+```
+
+```{r}
+## Corrected Degrees of Freedom Total:   DFT = n - 1
+dft <- n - 1
+dft
+```
+
+
+```{r}
+## Mean of Squares for Model:   MSM = SSM / DFM
+msm <- ssm/dfm
+msm
+```
+
+
+```{r}
+## Mean of Squares for Error:   MSE = SSE / DFE
+mse <- sse/dfe
+mse
+```
+
+
+```{r}
+## Mean of Squares Total:   MST = SST / DFT
+mst <- sst/dft
+mst
+```
+
+
+```{r}
+## F Statistic F = MSM/MSE
+f_score <- msm/mse
+f_score
+```
+
+
+```{r}
+## Adjusted R Squared R2 = 1 - (1 - R2)(n - 1) / (n - p)
+adjusted_r_squared <- 1 - (1 - r_squared)*(n-1) / (n-p)
+adjusted_r_squared
+```
+
+
+```{r}
+## Calculate the p-value from the F distribution
+p_value <- pf(f_score, dfm, dft, lower.tail=F)
+p_value
+```
+
