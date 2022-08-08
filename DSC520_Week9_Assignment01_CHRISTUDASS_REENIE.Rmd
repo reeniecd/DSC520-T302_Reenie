@@ -1,0 +1,77 @@
+---
+title: "DSC_520_week9_Assignment01"
+author: "Reenie Christudass"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  html_document: default
+---
+## Load Libraries
+```{r}
+if(!require('foreign')) {
+  install.packages('foreign')
+  library('foreign')
+}
+if(!require('tidyr')) {
+  install.packages('tidyr')
+  library('tidyr')
+}
+install.packages("MASS", repos="http://cran.us.r-project.org")
+library(MASS)
+```
+
+```{r}
+## Set the working directory to the root of your DSC 520 directory
+setwd("C:/Users/chris/dsc520/data")
+```
+
+```{r}
+## Load the `data/r4ds/heights.csv` to
+newdata <- read.csv("C:/Users/chris/dsc520/data/binary-classifier-data.csv")
+head(newdata)
+```
+
+
+
+```{r}
+newdata2 <-newdata[,c("label","x","y")]
+
+riskmodel<-glm(label~x+y,family=binomial,data=newdata2) 
+summary(riskmodel) 
+```
+
+```{r}
+##VARIABLE SELECTION
+riskmodel_new <- stepAIC(riskmodel)
+
+summary(riskmodel_new)
+```
+
+```{r}
+##Analysis of the outcome
+
+summary(newdata2$fitted.values)
+hist(riskmodel_new$fitted.values,main = " Histogram ",xlab = "", col = 'light green')
+newdata2$Predict <- ifelse(riskmodel_new$fitted.values >0.5,"0","1")
+newdata2
+
+```
+
+
+
+```{r}
+##Model Performance Evaluation
+riskmodel$aic
+riskmodel_new$aic
+## CONCLUSION : A model with minimum AIC value is preferred.The above shows the AIC of the original model riskmodel and the model derived by stepAIC function — riskmodel_new.  The model derived by stepAIC function corresponds to lower AIC value.
+```
+
+
+```{r}
+##Confusion Matrix
+mytable <- table(newdata2$label,newdata2$Predict)
+mytable
+efficiency <- sum(diag(mytable))/sum(mytable)
+efficiency
+## CONCLUSION: The accuracy of our model is 47.1%
+```

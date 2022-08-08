@@ -1,0 +1,230 @@
+---
+title: "Final Project DSC 520"
+author: "Reenie Christudass"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  html_document: default
+bibliography: C:/Users/chris/dsc520/assignments/assignment04/bibliography.bib  
+  
+---
+
+\tableofcontents
+\pagebreak
+
+## Introduction - MULTIPLE LINEAR REGRESSION
+
+Any organization can make better decisions by using regression techniques for predictive analysis. This statistical technique can help organizations to make better decisions. Relationships between data can transform analysis into actionable information. Linear regression can fit in one dependent and one independent variable and has significant limits. In comparison, Multiple regression can overcome and fit in single dependent and multiple independent variables. This statistical techniques is used for forecasting, time series modelling and find relationship between variable. 
+
+
+## Research questions:
+
+## Load libraries as needed
+
+```{r}
+if(!require('foreign')) {
+  install.packages('foreign')
+  library('foreign')
+}
+if(!require('tidyr')) {
+  install.packages('tidyr')
+  library('tidyr')
+}
+if(!require('dplyr')) {
+  install.packages('dplyr')
+  library('dplyr')
+}
+if(!require('corrr')) {
+  install.packages('corrr')
+  library('corrr')
+}
+
+install.packages("MASS", repos="http://cran.us.r-project.org")
+library(MASS)
+install.packages("corrplot ", repos="http://cran.us.r-project.org")
+library(corrplot )
+install.packages("olsrr", repos="http://cran.us.r-project.org")
+library(olsrr)
+install.packages("ggcorrplot", repos="http://cran.us.r-project.org")
+library(ggcorrplot)
+```
+
+### Identify data set and import
+
+```{r}
+## Set the working directory to the root of your DSC 520 directory
+setwd("C:/Users/chris/dsc520/data")
+```
+
+```{r}
+## Load the `data/r4ds/heights.csv` to
+df <- read.csv("C:/Users/chris/dsc520/Final_Project_Data/Car_details_v3.csv")
+head(df)
+```
+
+### Summarize the variable (univariate analysis)
+
+```{r}
+## Summarize the variable (univariate analysis)
+summary(df)
+```
+
+### Identify potential predictor variable and dependent variable
+```{r}
+    ## One dependent variable - Price of the car
+    ## Multiple Independent variable - year, selling_price, km_driven, fuel, seller_type, transmission, owner, mileage, engine,    max_power, torque, seats
+```
+
+    
+### Convert categorical variables   
+```{r}
+df <- transform(df,fuel = as.numeric(as.factor(fuel)))
+df <- transform(df,seller_type = as.numeric(as.factor(seller_type)))
+df <- transform(df,transmission = as.numeric(as.factor(transmission)))
+df <- transform(df,owner = as.numeric(as.factor(owner)))
+head(df)
+
+```
+
+
+
+
+### Data transformation and cleaning
+
+```{r}
+# Converting column km/kg to kmpl. created new column in dataframe with modififed values
+df$mileage_modified <- df$mileage
+df$mileage_modified <- gsub("kmpl","",as.character(df$mileage_modified))
+df$mileage_modified <- gsub("km/kg","",as.character(df$mileage_modified))
+df$mileage_modified <- as.double(df$mileage_modified)
+df$mileage_modified[endsWith(df$mileage, "km/kg")] <- as.numeric(df$mileage_modified) * 1.40 
+# created new column in dataframe with modififed values for engine
+df$engine_modified <- gsub("CC","",as.character(df$engine))
+df$engine_modified <- as.double(df$engine_modified)
+# created new column in dataframe with modififed values for max_power
+df$max_power_modified <-gsub("bhp","",as.character(df$max_power))
+df$max_power_modified <- as.double(df$max_power_modified)
+head(df)
+``` 
+### Check for number of nulls in each column and fill in NA values by finding mean
+```{r}
+colSums(is.na(df))
+
+# Return the column names containing missing observations
+list_na <- colnames(df)[ apply(df, 2, anyNA) ]
+list_na
+
+# Exclude the missing observations
+library(dplyr)
+# Exclude the missing observations
+df_drop <-df %>%
+na.omit()		
+
+head(df)
+
+# Create mean
+average_missing <- apply(df[,colnames(df) %in% list_na], 2, mean,na.rm =  TRUE)
+
+
+# Create a new variable with the mean
+df_replace <- df %>%
+   mutate(replace_mean_seats  = ifelse(is.na(seats), average_missing[1], seats),
+   replace_mean_mileage_modified = ifelse(is.na(mileage_modified), average_missing[2], mileage_modified),
+   replace_mean_engine_modified = ifelse(is.na(engine_modified), average_missing[3], engine_modified),
+   replace_mean_max_power_modified = ifelse(is.na(max_power_modified), average_missing[4], max_power_modified)
+   )
+
+head(df_replace)
+
+```
+```{r}
+df_new <- subset(df_replace, select = c(name,year,selling_price,km_driven,fuel,seller_type,transmission,owner,mileage,replace_mean_seats,replace_mean_mileage_modified,replace_mean_engine_modified,replace_mean_max_power_modified))
+head(df_new)
+```
+
+
+## Correlations between numeric variables in our new data frame
+```{r}
+## Identify columns in dataframe that are numeric
+
+df <- select_if(df_new, is.numeric)             
+head(df)
+
+## Correlation
+## Correlation in numbers
+
+corr <- round(cor(df), 1)
+corr
+
+## Correlation in graph
+ggcorrplot(corr)
+
+#CONCLUSION:  Variable with highest correlation is a good predictor( > .5)
+```
+## plotting the scatter plot 
+```{r}
+### Check the relationship using scatter plot 
+
+plot(df)
+
+```
+
+
+
+
+
+### Perform Linear Regression with All Predictors
+```{r}
+my_model <- lm(df,formula=selling_price ~.)
+summary(my_model)
+## CONCLUSION: Most of the variable can be participate in the multiple linear 
+## regression other than owner
+```
+
+
+### Check for multicollinearity 
+
+```{r}
+##TOLERANCE & VARIANCE INFLATION FACTOR (VIF)
+library("olsrr")
+ols_vif_tol(my_model)
+## CONCLUSION: VIF above 10 shows multicollinearity. I did not notice anything in the dataset
+```
+
+### Fit the model
+    
+### Hypothesis Testing
+    H0 = Ha or H0 not equal to Ha
+### Visualize data
+    Create plot to show the current vs predicted values
+### Predict analysis
+    Are there any outliers?
+    Are there missing values? Remove or find mean ?
+    Handle categorical variables?
+
+
+## Dataset - Selected Vehicle data
+
+### 1.Medical insurance (https://www.kaggle.com/datasets/mirichoi0218/insurance)
+Does the cost of the insurance is related with age, habits (smoking vs non smoking), BMI , region etc. Predict the cost increase / decrease on the cost of the insurance?
+
+
+### 2. Death rate from Cancer (https://data.world/nrippner/cancer-trials)  
+Who is prevailing the trails? Is it been driven by the environment conditions or wealth
+
+### 3. Vehicle data (https://www.kaggle.com/datasets/nehalbirla/vehicle-dataset-from-cardekho)
+Is the price of the car increase or decrease as the mileage goes up or because of accident etc? Any other factor.
+
+
+
+
+## Visualize data
+Scatter plot 
+- Predicted value vs Actual value
+- Plot the residual vs fitted
+Quantile-Quantile plots
+-determining if two data sets come from populations with a common distribution.
+Histogram - to find residuals
+
+
+## References
