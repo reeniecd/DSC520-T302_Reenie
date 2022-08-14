@@ -1,0 +1,191 @@
+---
+title: "DSC_520_week10_Assignment00"
+author: "Reenie Christudass"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+\tableofcontents
+\pagebreak
+
+## Load libraries as needed
+
+```{r}
+if(!require('factoextra')) {
+  install.packages("factoextra", repos="http://cran.us.r-project.org")
+  library('factoextra')
+}
+if(!require('cluster')) {
+  install.packages("cluster", repos="http://cran.us.r-project.org")
+  library('cluster')
+}
+if(!require('NbClust')) {
+  install.packages("NbClust", repos="http://cran.us.r-project.org")
+  library('NbClust')
+}
+if(!require('e1071')) {
+  install.packages("e1071", repos="http://cran.us.r-project.org")
+  library('e1071')
+}
+if(!require('caTools')) {
+  install.packages("caTools", repos="http://cran.us.r-project.org")
+  library('caTools')
+}
+if(!require('class')) {
+  install.packages("class", repos="http://cran.us.r-project.org")
+  library('class')
+}
+if(!require('dplyr')) {
+  install.packages("dplyr", repos="http://cran.us.r-project.org")
+  library('dplyr')
+}
+```
+
+```{r}
+rm(list = ls())
+## Set the working directory to the root of your DSC 520 directory
+setwd("C:/Users/chris/dsc520/data")
+```
+
+## Read the binary-classifier-data
+```{r}
+df_binary <- read.csv("C:/Users/chris/dsc520/data/binary-classifier-data.csv")
+head(df_binary)
+df_binary_copy <- df_binary
+```
+
+
+
+## Euclidean distance of binary-classifier-data
+```{r}
+#calculate Euclidean distance between columns a and d
+euclidean <- function(x, y) sqrt(sum((x - y)^2))
+
+print("Euclidean distance (binary-classifier-data) between two columns x and y in a dataframe is: ")
+
+euclidean(df_binary$x, df_binary$y)
+
+```
+
+### Convert y to be a factor
+```{r}
+is.factor(df_binary$y)
+df_binary$y <- as.factor(df_binary$y)
+head(df_binary)
+```
+
+
+## Build the model for binary-classifier-data
+```{r}
+binary_model <- glm(y~x, data=df_binary,family="binomial")
+summary (binary_model)
+#abline(binary_model, col='blue')
+```
+## Predict using model
+```{r}
+df_binary$Predicted <- predict(binary_model, df_binary, type='response')
+head(df_binary$Predicted )
+```
+### convert predicted values back to true/false
+```{r}
+df_binary$Predicted_T_F  <- ifelse (df_binary$Predicted >= 0.5, "true", "false")
+head(df_binary)
+```
+## Determine accuracy of the model
+```{r}
+accuracy <- mean(df_binary$Predicted == df_binary$y)
+print(accuracy)
+## ACCURACY is 0
+```
+
+## Plot 
+```{r}
+# Scatterplot
+plot(x = df_binary$x,
+     y = df_binary$y,
+     xlab = "x",
+     ylab = "y",
+     main = "Adding a regression line with abline()"
+     )
+
+# Calculate regression model
+model <- lm(formula = y ~ x,
+                  data = df_binary)
+
+# Add regression line
+abline(model,
+       col = "red", lwd = 2)
+```
+
+
+
+
+
+## Read the trinary-classifier-data
+```{r}
+df_trinary <- read.csv("C:/Users/chris/dsc520/data/trinary-classifier-data.csv")
+head(df_trinary)
+
+```
+
+## Euclidean distance of trinary-classifier-data
+```{r}
+#calculate Euclidean distance between columns a and d
+euclidean <- function(x, y) sqrt(sum((x - y)^2))
+
+print("Euclidean distance (trinary-classifier-data) between two columns x and y in a dataframe is: ")
+
+euclidean(df_trinary$x, df_trinary$y)
+
+```
+### Convert y to be a factor
+```{r}
+is.factor(df_trinary$y)
+df_trinary$y <- as.factor(df_trinary$y)
+head(df_trinary)
+```
+
+## Build the model for binary-classifier-data
+```{r}
+trinary_model <- glm(y~x, data=df_trinary,family="binomial")
+summary (trinary_model)
+#abline(binary_model, col='blue')
+```
+## Predict using model
+```{r}
+df_trinary$Predicted <- predict(trinary_model, df_trinary, type='response')
+head(df_trinary)
+```
+### convert predicted values back to true/false
+```{r}
+df_trinary$predict_T_F <- ifelse (df_trinary$Predicted >= 0.5, "true", "false")
+head(df_trinary)
+```
+## Determine accuracy of the model
+```{r}
+accuracy <- mean(df_trinary$y == df_trinary$Predicted)
+print(accuracy)
+## ACCURACY is 0
+```
+## Plot 
+```{r}
+# Scatterplot
+plot(x = df_trinary$x,
+     y = df_trinary$y,
+     xlab = "x",
+     ylab = "y",
+     main = "Adding a regression line with abline()"
+     )
+
+# Calculate regression model
+model <- lm(formula = y ~ x,
+                  data = df_trinary)
+
+# Add regression line
+abline(model,
+       col = "red", lwd = 2)
+```
+
+

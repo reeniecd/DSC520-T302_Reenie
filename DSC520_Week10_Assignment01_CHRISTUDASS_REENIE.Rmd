@@ -1,0 +1,172 @@
+---
+title: "DSC_520_week10_Assignment01"
+author: "Reenie Christudass"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+\tableofcontents
+\pagebreak
+
+## Load libraries as needed
+
+```{r}
+if(!require('factoextra')) {
+  install.packages("factoextra", repos="http://cran.us.r-project.org")
+  library('factoextra')
+}
+if(!require('cluster')) {
+  install.packages("cluster", repos="http://cran.us.r-project.org")
+  library('cluster')
+}
+if(!require('NbClust')) {
+  install.packages("NbClust", repos="http://cran.us.r-project.org")
+  library('NbClust')
+}
+if(!require('e1071')) {
+  install.packages("e1071", repos="http://cran.us.r-project.org")
+  library('e1071')
+}
+if(!require('caTools')) {
+  install.packages("caTools", repos="http://cran.us.r-project.org")
+  library('caTools')
+}
+if(!require('class')) {
+  install.packages("class", repos="http://cran.us.r-project.org")
+  library('class')
+}
+
+
+```
+
+## Load data
+```{r}
+## Set the working directory to the root of your DSC 520 directory
+setwd("C:/Users/chris/dsc520/data")
+## Load the `data/data/clustering-data.csv` to
+df <- read.csv("C:/Users/chris/dsc520/data/clustering-data.csv")
+head(df)
+```
+
+## Scale the value of the dataframe
+```{r}
+df_scale <- scale(df)# scale the value of the dataframe
+head(df_scale) 
+```
+
+### Displays the number of rows and columns
+```{r}
+dim(df_scale) # displays the number of rows and columns
+```
+## Find the optimal cluster without any method randomly from k = 2 to k = 12
+```{r} 
+# Compute k-means with k = 2 
+set.seed(123)
+km.res <- kmeans(df_scale, 2, nstart = 25)
+fviz_cluster(km.res , df_scale, ellipse.type = "norm")
+# Compute k-means with k = 3 
+set.seed(123)
+km.res <- kmeans(df_scale, 3, nstart = 25)
+fviz_cluster(km.res , df_scale, ellipse.type = "norm")
+# Compute k-means with k = 4 
+set.seed(123)
+km.res <- kmeans(df_scale, 4, nstart = 25)
+fviz_cluster(km.res , df_scale, ellipse.type = "norm")
+# Compute k-means with k = 5 
+set.seed(123)
+km.res <- kmeans(df_scale, 5, nstart = 25)
+fviz_cluster(km.res , df_scale, ellipse.type = "norm")
+# Compute k-means with k = 6 
+set.seed(123)
+km.res <- kmeans(df_scale, 6, nstart = 25)
+fviz_cluster(km.res , df_scale, ellipse.type = "norm")
+# Compute k-means with k = 7 
+set.seed(123)
+km.res <- kmeans(df_scale, 7, nstart = 25)
+fviz_cluster(km.res , df_scale, ellipse.type = "norm")
+# Compute k-means with k = 8 
+set.seed(123)
+km.res <- kmeans(df_scale, 8, nstart = 25)
+fviz_cluster(km.res , df_scale, ellipse.type = "norm")
+# Compute k-means with k = 9 
+set.seed(123)
+km.res <- kmeans(df_scale, 9, nstart = 25)
+fviz_cluster(km.res , df_scale, ellipse.type = "norm")
+# Compute k-means with k = 10 
+set.seed(123)
+km.res <- kmeans(df_scale, 10, nstart = 25)
+fviz_cluster(km.res , df_scale, ellipse.type = "norm")
+# Compute k-means with k = 11 
+set.seed(123)
+km.res <- kmeans(df_scale, 11, nstart = 25)
+fviz_cluster(km.res , df_scale, ellipse.type = "norm")
+# Compute k-means with k = 12 
+set.seed(123)
+km.res <- kmeans(df_scale, 12, nstart = 25)
+fviz_cluster(km.res , df_scale, ellipse.type = "norm")
+```
+
+
+
+
+## Find the optimal cluster using Elbow, Silhouette, Gap statistic method
+```{r}
+library(factoextra)
+library(NbClust)
+ 
+ 
+# Elbow method
+fviz_nbclust(df_scale, kmeans, method = "wss") +
+  geom_vline(xintercept = 2, linetype = 2)+
+  labs(subtitle = "Elbow method")
+ 
+# Silhouette method
+fviz_nbclust(df_scale, kmeans, method = "silhouette")+
+  labs(subtitle = "Silhouette method")
+ 
+# Gap statistic
+set.seed(123)
+fviz_nbclust(df_scale, kmeans, nstart = 25,  method = "gap_stat", nboot = 50)+
+  labs(subtitle = "Gap statistic method")
+
+##CONCLUSION: Using different method to identify the optimal cluster. Elbow and Shilhouette method both show that 4 is the optimal cluster.
+```
+
+
+
+
+## Clustering mean and vector
+```{r}
+set.seed(1)
+
+#perform k-means clustering with k = 4 clusters
+km <- kmeans(df_scale, centers = 4, nstart = 25)
+
+#view results
+km
+```
+## Plot clusters by using the fviz_cluster() function
+```{r}
+#plot results of final k-means model
+fviz_cluster(km, df_scale, ellipse.type = "norm")
+```
+
+
+## Mean of each cluster
+```{r}
+#find means of each cluster
+aggregate(df, by=list(cluster=km$cluster), mean)
+
+```
+
+## Add clusters to the original data
+```{r}
+#add cluster assignment to original data
+final_data <- cbind(df, cluster = km$cluster)
+
+#view final data
+head(final_data)
+
+```

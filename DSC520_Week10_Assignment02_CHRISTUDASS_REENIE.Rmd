@@ -1,0 +1,325 @@
+---
+title: "DSC_520_week10_Assignment02"
+author: "Reenie Christudass"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+\tableofcontents
+\pagebreak
+
+## Load libraries as needed
+
+```{r}
+if(!require('factoextra')) {
+  install.packages("factoextra", repos="http://cran.us.r-project.org")
+  library('factoextra')
+}
+if(!require('cluster')) {
+  install.packages("cluster", repos="http://cran.us.r-project.org")
+  library('cluster')
+}
+if(!require('NbClust')) {
+  install.packages("NbClust", repos="http://cran.us.r-project.org")
+  library('NbClust')
+}
+if(!require('e1071')) {
+  install.packages("e1071", repos="http://cran.us.r-project.org")
+  library('e1071')
+}
+if(!require('caTools')) {
+  install.packages("caTools", repos="http://cran.us.r-project.org")
+  library('caTools')
+}
+if(!require('class')) {
+  install.packages("class", repos="http://cran.us.r-project.org")
+  library('class')
+}
+if(!require('dplyr')) {
+  install.packages("dplyr", repos="http://cran.us.r-project.org")
+  library('dplyr')
+}
+```
+
+```{r}
+rm(list = ls())
+## Set the working directory to the root of your DSC 520 directory
+setwd("C:/Users/chris/dsc520/data")
+```
+
+## Read the binary-classifier-data
+```{r}
+df_binary <- read.csv("C:/Users/chris/dsc520/data/binary-classifier-data.csv")
+head(df_binary)
+```
+
+## Preprocess the dataset
+
+```{r}
+binary.new<- df_binary[,c(2, 3)]
+binary.class<- df_binary[,c(1)]
+```
+
+## Normalize the dataset
+
+```{r}
+normalize <- function(x){
+  return ((x-min(x))/(max(x)-min(x)))
+}
+
+binary.new$x<- normalize(binary.new$x)
+binary.new$y<- normalize(binary.new$y)
+
+head(binary.new)
+```
+
+
+## Apply k-means clustering algorithm for 3 centroids
+
+```{r}
+result<- kmeans(binary.new,3) #aplly k-means algorithm with no. of centroids(k)=3
+result$size # gives no. of records in each cluster
+result$centers # gives value of cluster center datapoint value(3 centers for k=3)
+result$cluster #gives cluster vector showing the custer where each record falls
+table(result$cluster,binary.class)
+fviz_cluster(result , binary.new, ellipse.type = "norm")
+```
+### Accuracy for 3 centroids
+```{r}
+#CONCLUSION
+#Total number of correctly classified instances are: 315 + 280 = 595
+#Total number of incorrectly classified instances are: 164 + 288 + 229 + 222 = 903 
+#Accuracy = 595 /(595 + 903) = 0.40   i.e our model has achieved 40% accuracy!
+```
+
+## Apply k-means clustering algorithm for 5 centroids
+```{r}
+result<- kmeans(binary.new,5) #aplly k-means algorithm with no. of centroids(k)=5
+result$size # gives no. of records in each cluster
+result$centers # gives value of cluster center datapoint value(5 centers for k=5)
+result$cluster #gives cluster vector showing the custer where each record falls
+table(result$cluster,binary.class)
+fviz_cluster(result , binary.new, ellipse.type = "norm")
+```
+
+### Accuracy for 5 centroids
+```{r}
+#CONCLUSION
+#Total number of correctly classified instances are: 211 + 227 = 438
+#Total number of incorrectly classified instances are: 1060
+#Accuracy = 438/(438 + 1060) = 0.29 i.e our model has achieved 29% accuracy!
+```
+
+## Apply k-means clustering algorithm for 10 centroids
+```{r}
+result<- kmeans(binary.new,10) #aplly k-means algorithm with no. of centroids(k)=10
+result$size # gives no. of records in each cluster
+result$centers # gives value of cluster center datapoint value(10 centers for k=10)
+result$cluster #gives cluster vector showing the custer where each record falls
+table(result$cluster,binary.class)
+fviz_cluster(result , binary.new, ellipse.type = "norm")
+```
+
+### Accuracy for 10 centroids
+```{r}
+#CONCLUSION
+#Total number of correctly classified instances are: 134 + 130 = 264
+#Total number of incorrectly classified instances are: 1234
+#Accuracy = 264/(264+1234) = 0.18 i.e our model has achieved 18% accuracy!
+```
+
+
+## Apply k-means clustering algorithm for 15 centroids
+```{r}
+result<- kmeans(binary.new,15) #aplly k-means algorithm with no. of centroids(k)=15
+result$size # gives no. of records in each cluster
+result$centers # gives value of cluster center datapoint value(15 centers for k=15)
+result$cluster #gives cluster vector showing the custer where each record falls
+table(result$cluster,binary.class)
+fviz_cluster(result , binary.new, ellipse.type = "norm")
+```
+
+### Accuracy for 15 centroids
+```{r}
+#CONCLUSION
+#Total number of correctly classified instances are: 113 + 115 = 228 
+#Total number of incorrectly classified instances are:  1270
+#Accuracy = 228/(228+1270) = 0.15 i.e our model has achieved 15% accuracy!
+```
+
+## Apply k-means clustering algorithm for 20 centroids
+```{r}
+result<- kmeans(binary.new,20) #aplly k-means algorithm with no. of centroids(k)=20
+result$size # gives no. of records in each cluster
+result$centers # gives value of cluster center datapoint value(20 centers for k=20)
+result$cluster #gives cluster vector showing the custer where each record falls
+table(result$cluster,binary.class)
+fviz_cluster(result , binary.new, ellipse.type = "norm")
+```
+
+### Accuracy for 20 centroids
+```{r}
+#CONCLUSION
+#Total number of correctly classified instances are: 113 + 104 = 217
+#Total number of incorrectly classified instances are: 1281
+#Accuracy = 217/(217+1281) = 0.14 i.e our model has achieved 14% accuracy!
+```
+
+## Apply k-means clustering algorithm for 25 centroids
+```{r}
+result<- kmeans(binary.new,25) #aplly k-means algorithm with no. of centroids(k)=25
+result$size # gives no. of records in each cluster
+result$centers # gives value of cluster center datapoint value(25 centers for k=25)
+result$cluster #gives cluster vector showing the custer where each record falls
+table(result$cluster,binary.class)
+fviz_cluster(result , binary.new, ellipse.type = "norm")
+```
+
+### Accuracy for 25 centroids
+```{r}
+#CONCLUSION
+#Total number of correctly classified instances are: 113 + 112 = 225
+#Total number of incorrectly classified instances are:  1273
+#Accuracy = 225/(225+1273) = .15 i.e our model has achieved 15% accuracy!
+```
+
+
+## Read the trinary-classifier-data
+```{r}
+df_trinary <- read.csv("C:/Users/chris/dsc520/data/trinary-classifier-data.csv")
+head(df_trinary)
+
+```
+
+
+## Preprocess the dataset
+
+```{r}
+trinary.new<- df_trinary[,c(2, 3)]
+trinary.class<- df_trinary[,c(1)]
+```
+
+## Normalize the dataset
+
+```{r}
+normalize <- function(x){
+  return ((x-min(x))/(max(x)-min(x)))
+}
+
+trinary.new$x<- normalize(trinary.new$x)
+trinary.new$y<- normalize(trinary.new$y)
+
+head(trinary.new)
+```
+
+
+## Apply k-means clustering algorithm for 3 centroids
+
+```{r}
+result<- kmeans(trinary.new,3) #aplly k-means algorithm with no. of centroids(k)=3
+result$size # gives no. of records in each cluster
+result$centers # gives value of cluster center datapoint value(3 centers for k=3)
+result$cluster #gives cluster vector showing the custer where each record falls
+table(result$cluster,trinary.class)
+fviz_cluster(result , trinary.new, ellipse.type = "norm")
+```
+### Accuracy for 3 centroids
+```{r}
+#CONCLUSION
+#Total number of correctly classified instances are: 177 + 407 + 212 = 796
+#Total number of incorrectly classified instances are: 772
+#Accuracy = 796/(796+772) = 0.51 i.e our model has achieved 51% accuracy!
+```
+
+## Apply k-means clustering algorithm for 5 centroids
+```{r}
+result<- kmeans(trinary.new,5) #aplly k-means algorithm with no. of centroids(k)=5
+result$size # gives no. of records in each cluster
+result$centers # gives value of cluster center datapoint value(5 centers for k=5)
+result$cluster #gives cluster vector showing the custer where each record falls
+table(result$cluster,trinary.class)
+fviz_cluster(result , trinary.new, ellipse.type = "norm")
+```
+
+### Accuracy for 5 centroids
+```{r}
+#CONCLUSION
+#Total number of correctly classified instances are: 146 + 238 + 127 = 511
+#Total number of incorrectly classified instances are:  1057
+#Accuracy = 511/(511+1057) = 0.32 i.e our model has achieved 32% accuracy!
+```
+
+## Apply k-means clustering algorithm for 10 centroids
+```{r}
+result<- kmeans(trinary.new,10) #aplly k-means algorithm with no. of centroids(k)=10
+result$size # gives no. of records in each cluster
+result$centers # gives value of cluster center datapoint value(10 centers for k=10)
+result$cluster #gives cluster vector showing the custer where each record falls
+table(result$cluster,trinary.class)
+fviz_cluster(result , trinary.new, ellipse.type = "norm")
+```
+
+### Accuracy for 10 centroids
+```{r}
+#CONCLUSION
+#Total number of correctly classified instances are: 136 + 143 + 64 = 343
+#Total number of incorrectly classified instances are: 1225
+#Accuracy = 343/(343+1225) = 0.22 i.e our model has achieved 22% accuracy!
+```
+
+
+## Apply k-means clustering algorithm for 15 centroids
+```{r}
+result<- kmeans(trinary.new,15) #aplly k-means algorithm with no. of centroids(k)=15
+result$size # gives no. of records in each cluster
+result$centers # gives value of cluster center datapoint value(15 centers for k=15)
+result$cluster #gives cluster vector showing the custer where each record falls
+table(result$cluster,trinary.class)
+fviz_cluster(result , trinary.new, ellipse.type = "norm")
+```
+
+### Accuracy for 15 centroids
+```{r}
+#CONCLUSION
+#Total number of correctly classified instances are: 92 + 109 + 103 = 304
+#Total number of incorrectly classified instances are:  
+#Accuracy = 304/(304+1264) = 0.19 i.e our model has achieved 19% accuracy!
+```
+
+## Apply k-means clustering algorithm for 20 centroids
+```{r}
+result<- kmeans(trinary.new,20) #aplly k-means algorithm with no. of centroids(k)=20
+result$size # gives no. of records in each cluster
+result$centers # gives value of cluster center datapoint value(20 centers for k=20)
+result$cluster #gives cluster vector showing the custer where each record falls
+table(result$cluster,trinary.class)
+fviz_cluster(result , trinary.new, ellipse.type = "norm")
+```
+
+### Accuracy for 20 centroids
+```{r}
+#CONCLUSION
+#Total number of correctly classified instances are: 66 + 68 + 64 = 198
+#Total number of incorrectly classified instances are: 
+#Accuracy = 198/(304+1370) = .13  i.e our model has achieved 13% accuracy!
+```
+
+## Apply k-means clustering algorithm for 25 centroids
+```{r}
+result<- kmeans(trinary.new,25) #aplly k-means algorithm with no. of centroids(k)=25
+result$size # gives no. of records in each cluster
+result$centers # gives value of cluster center datapoint value(25 centers for k=25)
+result$cluster #gives cluster vector showing the custer where each record falls
+table(result$cluster,trinary.class)
+fviz_cluster(result , trinary.new, ellipse.type = "norm")
+```
+
+### Accuracy for 25 centroids
+```{r}
+#CONCLUSION
+#Total number of correctly classified instances are: 80 + 73 + 53 = 206
+#Total number of incorrectly classified instances are: 
+#Accuracy = 206/(206+1362) = 0.13  i.e our model has achieved 13% accuracy!
+```
