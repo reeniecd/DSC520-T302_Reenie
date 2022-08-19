@@ -60,7 +60,7 @@ head(data_new)
 ```{r}
 # convert the matrix into dataframe
 newdata=as.data.frame(data_new)
-newdata
+head(newdata)
 ```
 
 ```{r}
@@ -101,7 +101,7 @@ summary(riskmodel_new)
 summary(newdata2$fitted.values)
 hist(riskmodel_new$fitted.values,main = " Histogram ",xlab = "", col = 'light green')
 newdata2$Predict <- ifelse(riskmodel_new$fitted.values >0.5,"Survived","Not Survive")
-newdata2
+head(newdata2)
 
 ```
 
